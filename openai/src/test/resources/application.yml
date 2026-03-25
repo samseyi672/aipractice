@@ -1,0 +1,12 @@
+spring:
+  application.name: Lab01 OpenAI
+  ai:
+    retry:
+      max-attempts: 1
+    openai:
+      client:
+        ssl:
+          insecure-trust-all: true
+      api-key: ${OPEN_API_KEY}
+      chat:
+        api-key: ${OPEN_API_KEY}

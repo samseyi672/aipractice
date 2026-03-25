@@ -1,0 +1,3 @@
+rootProject.name = 'aipractice'
+
+include 'shared-lib', 'openai', 'azureaipractice'

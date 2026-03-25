@@ -1,0 +1,9 @@
+plugins {
+	// keep this empty — the root does not need plugins
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+	}
+}

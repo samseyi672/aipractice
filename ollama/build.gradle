@@ -37,7 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation "org.springframework.ai:spring-ai-starter-model-ollama:${springAiVersion}"
-    implementation "org.springframework.ai:spring-boot-starter-aop"
+//    implementation "org.springframework.ai:spring-boot-starter-aop"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

@@ -1,3 +1,6 @@
 rootProject.name = 'aipractice'
 
 include 'shared-lib', 'openai', 'azureaipractice'
+include 'ollama'
+include 'amazonbedrock'
+include 'langchain4j'

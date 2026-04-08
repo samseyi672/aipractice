@@ -1,0 +1,217 @@
+spring:
+  application:
+    name: Lab8 VectorStore
+  main:
+    web-application-type: none # Do not start a web server.
+
+  ai:
+    retry:
+      max-attempts: 1      # Maximum number of retry attempts.
+      on-client-errors: false   # Do not retry 4xx client error codes.
+#    model.embedding: none
+    model:
+        embedding: none # Disable default autoconfiguration for embedding models.
+# TODO-01: Adjust the settings below based on the embedding model you plan to use.
+# If you plan to use AWS Bedrock:
+#   - Set spring.ai.model.embedding to bedrock-cohere.
+#   - Adjust the region setting if needed.
+#   - Adjust the spring.ai.bedrock.cohere.embedding.model to cohere.embed-english-v3, or see https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html for latest list.
+#
+# If you plan to use OpenAI:
+#   - Set spring.ai.model.embedding to openai.
+#   - Set spring.ai.openai.embedding.options.model to text-embedding-ada-002, or see https://platform.openai.com/docs/models/embeddings for latest list.
+#
+# If you plan to use Ollama:
+#   - Set spring.ai.model.embedding to ollama.
+#   - Adjust the base-url if needed.
+#   - Set spring.ai.ollama.embedding.options.model to mxbai-embed-large, or experiment with another embedding model
+#   - Make sure you have pulled the model you wish to use, and that Ollama is running.
+#
+# Note that only one model will be active at a time.  The active model is determined by the active profile.
+
+---
+#spring:
+#  config.activate.on-profile: aws-embedding
+#  application.name: Lab8 VectorStore Bedrock
+---
+spring:
+  config:
+    activate:
+      on-profile: aws-embedding
+
+  application:
+    name: Lab8 VectorStore Bedrock
+
+  ai:
+    model:
+      embedding: bedrock-cohere
+
+    bedrock:
+      cohere:
+        embedding:
+          model: cohere.embed-english-v3
+#spring:
+#  config:
+#    activate:
+#      on-profile: aws-embedding
+#  ai:
+#    model.embedding: bedrock-cohere
+#    bedrock:
+#      cohere:
+#        embedding:
+#          model: cohere.embed-english-v3
+
+---
+---
+spring:
+  config:
+    activate:
+      on-profile: openai-embedding
+
+  application:
+    name: Lab8 VectorStore OpenAI
+
+  ai:
+    model:
+      embedding: openai
+
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-ada-002
+#spring:
+#  config.activate.on-profile: openai-embedding
+#  application.name: Lab8 VectorStore OpenAI
+#
+#  ai:
+#    model.embedding: openai
+#    openai:
+#      api-key: ${OPENAI_API_KEY}
+#      embedding:
+#        options:
+#          model: text-embedding-ada-002
+---
+spring:
+  config:
+    activate:
+      on-profile: ollama-embedding
+
+  application:
+    name: Lab8 VectorStore Ollama
+
+  ai:
+    model:
+      embedding: ollama
+
+    ollama:
+      base-url: http://localhost:11434
+      embedding:
+        options:
+          model: mxbai-embed-large
+---
+spring:
+  config:
+    activate:
+      on-profile: simple-vector-store
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.ai.vectorstore.redis.autoconfigure.RedisVectorStoreAutoConfiguration
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+---
+spring:
+  config:
+    activate:
+      on-profile: redis-vector-store
+
+  ai:
+    vectorstore:
+      redis:
+        uri: redis://localhost:6379
+        index: default-index
+        prefix: "default:"
+        initializeSchema: true
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+#spring:
+#  config.activate.on-profile: redis-vector-store
+#
+#  # TODO-21 (OPTIONAL): Set properties for the Redis vector store.
+#  # Note that these will only be used if the "redis-vector-store" profile is active.
+#  # Set spring.ai.vectorstore.redis.uri to redis://localhost:6379, unless your redis is running elsewhere.
+#  # Set spring.ai.vectorstore.redis.initializeSchema to true to create the necessary schema.
+#  # (You may not want to do this in a production environment.)
+#  ai:
+#    vectorstore:
+#      redis:
+#        uri: redis://localhost:6379  # Default.
+#        index: default-index         # Default.
+#        prefix: "default:"           # Default.
+#        initializeSchema: true       # Potentially destructive.
+#
+#  # If running a redis vector store, exclude the PGVector and DataSource autoconfigurations.
+#  autoconfigure.exclude:
+#    - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+#    - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+
+---
+spring:
+  config:
+    activate:
+      on-profile: pg-vector-store
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.vectorstore.redis.autoconfigure.RedisVectorStoreAutoConfiguration
+#spring:
+#  config.activate.on-profile: pg-vector-store
+#
+#  # TODO-25 (OPTIONAL): Set properties for the Postgres vector store.
+#  # Note that these will only be used if the "pg-vector-store" profile is active.
+#  # Set spring.datasource.url to jdbc:postgresql://localhost:5432/postgres, unless your Postgres is running elsewhere.
+#  # Set spring.datasource.username and spring.datasource.password the username and password set when running the container.
+#  # Set the spring.ai.vectorstore.pgvector.initialize-schema to true to create the necessary schema.
+#  # (You may not want to do this in a production environment.)
+#  # Set the spring.ai.vectorstore.pgvector.index-type to HNSW.
+#  # Set the spring.ai.vectorstore.pgvector.distance-type to COSINE_DISTANCE.
+#  # Set the spring.ai.vectorstore.pgvector.dimensions based on the the underlying model you are using
+#  #    For SpringAI's internal model, use 384
+#  #    For AWS/Bedrock/Cohere, use 1024
+#  #    For OpenAI's text-embedding-ada-002, use 1536
+#  #    If you make a mistake here, don't worry.  The error message will tell you the correct #.  Delete and restart the DB with the revised number.
+#
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres
+#    username: postgres
+#    password: postgres
+#  ai:
+#    vectorstore:
+#      pgvector:
+#        initialize-schema: true
+#        index-type: HNSW                # Hierarchical Navigable Small World (HNSW) algorithm, Alternatives: Annoy, LSH, KD-Tree, Ball Tree, Product Quantization, FAISS
+#        distance-type: COSINE_DISTANCE  # How it determines if one vector is similar to another.
+#        # CRITICAL: The PGVectorStore database must be initialized to the # of dimensions in the model you are using.
+#        dimensions: 1536                # OpenAI's text-embedding-ada-002 model uses 1536 dimensions.
+#        #dimensions: 384                 # AWS/Bedrock/Cohere uses 384 dimensions.
+#
+#  # If running a simple vector store, exclude the Redis auto configuration.
+#  autoconfigure.exclude:
+#    - org.springframework.ai.vectorstore.redis.autoconfigure.RedisVectorStoreAutoConfiguration

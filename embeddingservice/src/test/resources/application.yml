@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: Lab05 Images
+  main:
+    web-application-type: none
+  ai:
+    retry:
+      max-attempts: 1
+    model:
+      image: none
+---
+spring:
+  config:
+    activate:
+      on-profile: openai
+  ai:
+    model:
+      image: openai
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      image:
+        options:
+          n: 1
+          response-format: url
+          size: 1792x1024
+          style: natural
+---
+spring:
+  config:
+    activate:
+      on-profile: stabilityai
+  ai:
+    model:
+      image: stabilityai
+    stabilityai:
+      api-key: ${STABILITYAI_API_KEY}
+      image:
+        options:
+          n: 1
+          response-format: image/png
+          cfg-scale: 8.0
+          model: stable-diffusion-v1-6
+          width: 512
+          height: 512
+          steps: 10
+
+---
+spring:
+  config:
+    activate:
+      on-profile: zhipuai
+
+  ai:
+    model:
+      image: zhipuai
+
+    zhipuai:
+      api-key: ${ZHIPUAI_API_KEY}
